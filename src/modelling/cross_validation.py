@@ -8,14 +8,18 @@ import numpy as np
 from sklearn.metrics import f1_score
 
 
-def gridsearch_with_cv(input_x: pd.DataFrame, target_y: pd.Series, parameters_grids: dict, estimator, cv_folds,
-                       num_params_iter_max=10, metric='roc_auc'):
+def gridsearch_with_cv(train: pd.DataFrame, test: pd.DataFrame, test_y: pd.Series, train_y: pd.Series,
+                       parameters_grids: dict, estimator, cv_folds, num_params_iter_max=10, metric='roc_auc'):
     strat_kfold = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=1001)
-    random_search = RandomizedSearchCV(estimator, param_distributions=parameters_grids, n_iter=num_params_iter_max,
+
+    random_search = RandomizedSearchCV(estimator,
+                                       param_distributions=parameters_grids,
+                                       n_iter=num_params_iter_max,
                                        scoring=metric,
                                        n_jobs=4,
-                                       cv=strat_kfold.split(input_x, target_y), verbose=3, random_state=1001)
-    random_search.fit(input_x, target_y)
+                                       cv=strat_kfold.split(train, train_y), verbose=3, random_state=1001)
+
+    random_search.fit(train, train_y, eval_set=[[test, test_y]])
     return random_search
 
 
@@ -29,9 +33,8 @@ def plot_variable_importance(model, feature_names: list):
     plt.plot(fig)
 
 
-def feature_selection( model_type, train_data: pd.DataFrame, train_y: pd.Series, test_data: pd.DataFrame,
+def feature_selection(model_type, train_data: pd.DataFrame, train_y: pd.Series, test_data: pd.DataFrame,
                       test_y: pd.Series, metric=f1_score):
-
     model = model_type().fit(train_data, train_y)
     thresholds = np.sort(model.feature_importances_)
     results = []
@@ -47,7 +50,8 @@ def feature_selection( model_type, train_data: pd.DataFrame, train_y: pd.Series,
         predictions = selection_model.predict(select_x_test)
         metric_loop = metric(test_y, predictions)
         selected_features = select_x_train
-        results.append({"treshold": thresh, "number of features":selected_features.shape[1], "metric": metric_loop, "selected_features": ",".join(
-            train_data.columns[selection.get_support()])})
-        print("Thresh=%.3f, n=%d, Accuracy: %.2f%%" % (thresh, selected_features.shape[1], metric_loop * 100.0))
+        results.append({"treshold": thresh, "number of features": selected_features.shape[1], "metric": metric_loop,
+                        "selected_features": ",".join(
+                            train_data.columns[selection.get_support()])})
+        print("Thresh=%.3f, n=%d, Metric: %.2f%%" % (thresh, selected_features.shape[1], metric_loop * 100.0))
     return results

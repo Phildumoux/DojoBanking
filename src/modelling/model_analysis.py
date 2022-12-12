@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.inspection import PartialDependenceDisplay
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import shap
 
 
@@ -20,7 +20,7 @@ def plot_feature_importance(model, features: list, output_path: str = "output/")
     plt.barh(range(len(sorted_idx)), feature_importance[sorted_idx], align='center')
     plt.yticks(range(len(sorted_idx)), np.array(features)[sorted_idx])
     plt.title('Feature Importance')
-    fig.figure_.savefig('{}_var_importance.png'.format(output_path))
+    fig.savefig('{}_var_importance.png'.format(output_path))
 
 
 def save_and_plot_partial_dependence_plots(model, train_data: pd.DataFrame, features: list,
