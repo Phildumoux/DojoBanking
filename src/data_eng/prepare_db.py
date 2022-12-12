@@ -9,9 +9,12 @@ def load_dataset(path_to_file: str) -> pd.DataFrame:
     return data
 
 
-def split_dataset(input_df: pd.DataFrame, train_pct: float, test_pct: float, valid_pct: float) -> [pd.DataFrame,
-                                                                                                   pd.DataFrame,
-                                                                                                   pd.DataFrame]:
+def split_dataset(input_df: pd.DataFrame, train_pct: float) -> [pd.DataFrame, pd.DataFrame]:
     df_len = len(input_df)
-    train, test, valid = np.split(input_df, [int(train_pct * df_len), int(test_pct * df_len)])
-    return train, test, valid
+    input_df = input_df.sample(frac=1).reset_index(drop=True)
+    train, test = np.split(input_df, [int(train_pct * df_len)])
+    return train, test
+
+
+def check_variable_is_monotonic(values: pd.Series) -> bool:
+    return len(values.unique()) == 1
