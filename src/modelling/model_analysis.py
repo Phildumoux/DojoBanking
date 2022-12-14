@@ -5,8 +5,11 @@ import matplotlib.pyplot as plt
 import shap
 
 
-def plot_shapley_values(model, input_data: pd.DataFrame, sample_frac: float):
-    sample_test = input_data.sample(frac=sample_frac)
+def plot_shapley_values(model, input_data: pd.DataFrame, sample_n_or_frac: float or int):
+    if(type(sample_n_or_frac) == float):
+        sample_test = input_data.sample(frac=sample_n_or_frac)
+    else:
+        sample_test = input_data.sample(n=sample_n_or_frac)
     explainer = shap.Explainer(model.predict, sample_test)
     shap_values = explainer(sample_test)
     shap.summary_plot(shap_values, sample_test, plot_type="bar")

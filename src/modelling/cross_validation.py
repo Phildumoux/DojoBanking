@@ -17,7 +17,7 @@ def gridsearch_with_cv(train: pd.DataFrame, test: pd.DataFrame, test_y: pd.Serie
                                        n_iter=num_params_iter_max,
                                        scoring=metric,
                                        n_jobs=4,
-                                       cv=strat_kfold.split(train, train_y), verbose=3, random_state=1001)
+                                       cv=strat_kfold.split(train, train_y), verbose=0, random_state=1001)
 
     random_search.fit(train, train_y, eval_set=[[test, test_y]])
     return random_search
